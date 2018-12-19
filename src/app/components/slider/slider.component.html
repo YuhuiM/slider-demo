@@ -8,9 +8,9 @@
     </li>
   </ul>
   <div class="slider-drag"
-       [ngStyle]="{left: left + 'px'}"
+       [style.left.px]="left"
        (mousedown)="down($event)"></div>
-  <div class="moved-bk" [ngStyle]="{width: left + 'px'}"></div>
+  <div class="moved-bk" [style.width.px]="left"></div>
   <div class="slider-input" *ngIf="options.showInput">
     <input type="number"
            [min]="min"

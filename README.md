@@ -1,4 +1,5 @@
 # TestNg
+封装了一个比例不均匀的slider滑动条
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.0.
 

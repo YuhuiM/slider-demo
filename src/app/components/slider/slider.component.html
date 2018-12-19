@@ -1,0 +1,26 @@
+<div class="app-slider" [class.slider-unmove]="unmove" [class.disabled]="disabled" (click)="clickSlider($event)">
+  <ul class="bk">
+    <li style="width: 16px;"></li>
+    <li *ngFor="let item of data;"
+        class="slider-item"
+        [ngStyle]="{flex: item.width}">
+      <span [textContent]="item.count + options.unit" class="text"></span>
+    </li>
+  </ul>
+  <div class="slider-drag"
+       [ngStyle]="{left: left + 'px'}"
+       (mousedown)="down($event)"></div>
+  <div class="moved-bk" [ngStyle]="{width: left + 'px'}"></div>
+  <div class="slider-input" *ngIf="options.showInput">
+    <input type="number"
+           [min]="min"
+           [max]="max"
+           [(ngModel)]="value"
+           (ngModelChange)="changeValue()" />
+    <div class="btns">
+      <span class="add" (click)="value = value + options.step; changeValue();"><i></i></span>
+      <span class="sub" (click)="value = value - options.step; changeValue();"><i></i></span>
+    </div>
+    <div class="unit" [textContent]="options.unit"></div>
+  </div>
+</div>

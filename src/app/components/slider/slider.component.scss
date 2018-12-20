@@ -17,6 +17,7 @@
       list-style: none;
       text-align: right;
       line-height: 28px;
+      overflow: hidden;
 
       & + .slider-item .text {
         border-left: solid 1px #ddd;
@@ -98,6 +99,9 @@
     width: 100%;
     height: 100%;
     display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .slider-drag {

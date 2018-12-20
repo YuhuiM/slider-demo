@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ElementRef, forwardRef, OnDestroy } from '@angular/core';
-import { OptiopnsModel } from '../../interface/options-model';
+import { OptionsDataModel, OptiopnsModel } from '../../interface/options-model';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -15,11 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() options: OptiopnsModel;
 
-  data: Array<{
-    count: number;
-    width: number;
-    hoverText?: string;
-  }>;
+  data: OptionsDataModel[];
   left = 0;
   value = 0;
   min: number;
@@ -28,31 +24,28 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
   setViewValue: (value: number) => void;
   disabled = false;
   dragEl: Element;
+  prevEl: Element;
   prevElWidth: number;
 
   constructor(private ref: ElementRef) {}
 
-
   ngOnInit() {
-    this.initEl();
-    setTimeout(window.onresize);
-  }
-
-  ngOnDestroy() {
-    window.onresize = window.onmousemove = window.onmouseup = null;
-  }
-
-  initEl() {
-    this.dragEl = this.ref.nativeElement.children[0].children[1];
-    this.prevElWidth = this.ref.nativeElement.children[0].children[0].clientWidth - this.dragEl.clientWidth;
+    this.dragEl = this.ref.nativeElement.getElementsByClassName('slider-drag')[0]; // 获取滑块的dom元素
+    this.prevEl = this.ref.nativeElement.getElementsByClassName('bk')[0]; // 获取滑动条的dom元素
+    this.prevElWidth = this.prevEl.clientWidth - this.dragEl.clientWidth; // 获取滑动条总长
     this.data = this.options.data.sort((x, y) => x.count - y.count);
     this.min = this.options.min || 0;
     this.max = this.options.max || this.data[this.data.length - 1].count;
 
-    window.onresize = () => {
-      this.initEl();
+    window.onresize = () => { // 避免窗口变化时样式错乱
+      this.prevElWidth = this.prevEl.clientWidth - this.dragEl.clientWidth; // 获取滑动条总长
       this.left = this.valueToLeft(this.value);
     };
+    setTimeout(window.onresize); // 组件刚加载完样式有误差 需要重新计算样式
+  }
+
+  ngOnDestroy() {
+    window.onresize = window.onmousemove = window.onmouseup = null;
   }
 
   down(e) {
@@ -73,7 +66,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
     };
   }
 
-  findIndex(w): {index: number, beforeWidth: number} {
+  findIndex(w): {index: number, beforeWidth: number} { // 滑动时找到当前处于哪个阶段
     let width = 0;
 
     for (let index = 0; index < this.data.length; index++) {
@@ -87,7 +80,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
     }
   }
 
-  leftToValue(left): number {
+  leftToValue(left): number { // 根据滑块位置获取值
     const _left = left * 100 / this.prevElWidth;
     const { index, beforeWidth } = this.findIndex(_left);
     const data = this.data[index];
@@ -103,7 +96,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
     return value;
   }
 
-  valueToLeft(value): number {
+  valueToLeft(value): number {  // 根据值来获取滑块位置
     let width = 0;
     for (let index = 0; index < this.data.length; index++) {
       if (this.data[index].count >= value) {
@@ -143,8 +136,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
     this.setViewValue = fn;
   }
 
-  registerOnTouched(fn: any): void {
-  }
+  registerOnTouched(fn: any): void {}
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;

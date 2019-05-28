@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ElementRef, forwardRef, OnDestroy } from '@angular/core';
-import { OptionsDataModel, OptiopnsModel } from '../../interface/options-model';
+import { DataModel } from '../../interface/options-model';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -13,39 +13,51 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   }],
 })
 export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  @Input() options: OptiopnsModel;
+  @Input() min = 0;
+  @Input() max: number;
+  @Input() unit: string; // 单位
+  @Input() step: number;
+  @Input() showInput: boolean; // 是否显示input
 
-  data: OptionsDataModel[];
+  @Input() set data(value: DataModel[]) {
+    this.$data = value;
+    this.init();
+  }
+  get data() {
+    return this.$data;
+  }
+
   left = 0;
   value = 0;
-  min: number;
-  max: number;
   unmove = true;
   setViewValue: (value: number) => void;
   disabled = false;
   dragEl: Element;
   prevEl: Element;
   prevElWidth: number;
+  $data: DataModel[];
 
   constructor(private ref: ElementRef) {}
 
   ngOnInit() {
     this.dragEl = this.ref.nativeElement.getElementsByClassName('slider-drag')[0]; // 获取滑块的dom元素
     this.prevEl = this.ref.nativeElement.getElementsByClassName('bk')[0]; // 获取滑动条的dom元素
-    this.prevElWidth = this.prevEl.clientWidth - this.dragEl.clientWidth; // 获取滑动条总长
-    this.data = this.options.data.sort((x, y) => x.count - y.count);
-    this.min = this.options.min || 0;
-    this.max = this.options.max || this.data[this.data.length - 1].count;
 
     window.onresize = () => { // 避免窗口变化时样式错乱
       this.prevElWidth = this.prevEl.clientWidth - this.dragEl.clientWidth; // 获取滑动条总长
       this.left = this.valueToLeft(this.value);
     };
-    setTimeout(window.onresize); // 组件刚加载完样式有误差 需要重新计算样式
+    this.init();
   }
 
   ngOnDestroy() {
     window.onresize = window.onmousemove = window.onmouseup = null;
+  }
+
+  init() {
+    this.data.sort((x, y) => x.count - y.count);
+    this.max = this.max == null ? this.data[this.data.length - 1].count : this.max;
+    setTimeout(window.onresize); // 组件刚加载完样式有误差 需要重新计算样式
   }
 
   down(e) {
@@ -91,7 +103,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
     } else {
       value = data.count * _left / data.width;
     }
-    value = Math.round(value / this.options.step) * this.options.step;
+    value = Math.round(value / this.step) * this.step;
     this.setViewValue(value);
     return value;
   }
@@ -111,12 +123,7 @@ export class SliderComponent implements ControlValueAccessor, OnInit, OnDestroy 
   }
 
   changeValue() {
-    if (this.value < this.min) {
-      this.value = this.min;
-    }
-    if (this.value > this.max) {
-      this.value = this.max;
-    }
+    this.value = Math.min(this.max, Math.max(this.min, this.value));
     this.left = this.valueToLeft(this.value);
     this.setViewValue(this.value);
   }

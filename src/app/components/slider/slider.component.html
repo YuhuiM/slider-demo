@@ -4,23 +4,23 @@
     <li *ngFor="let item of data;"
         class="slider-item"
         [ngStyle]="{flex: item.width}">
-      <span [textContent]="item.count + options.unit" class="text"></span>
+      <span [textContent]="item.count + unit" class="text"></span>
     </li>
   </ul>
   <div class="slider-drag"
        [style.left.px]="left"
        (mousedown)="down($event)"></div>
   <div class="moved-bk" [style.width.px]="left"></div>
-  <div class="slider-input" *ngIf="options.showInput">
+  <div class="slider-input" *ngIf="showInput">
     <input type="number"
            [min]="min"
            [max]="max"
            [(ngModel)]="value"
            (ngModelChange)="changeValue()" />
     <div class="btns">
-      <span class="add" (click)="value = value + options.step; changeValue();"><i></i></span>
-      <span class="sub" (click)="value = value - options.step; changeValue();"><i></i></span>
+      <span class="add" (click)="value = value + step; changeValue();"><i></i></span>
+      <span class="sub" (click)="value = value - step; changeValue();"><i></i></span>
     </div>
-    <div class="unit" [textContent]="options.unit"></div>
+    <div class="unit" [textContent]="unit"></div>
   </div>
 </div>
